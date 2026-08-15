@@ -1,0 +1,27 @@
+# Firebase 設定（包含敏感信息）
+firebase-config.js
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+package-lock.json
+
+# 部署
+dist/
+build/
+
+# 日誌
+*.log
+npm-debug.log
+
+# 備份
+*.bak
+*.swp
+*~
