@@ -134,7 +134,41 @@ body {
 .home-intro {
     padding: 5rem 0 4rem;
     color: #fff;
-    background: linear-gradient(120deg, var(--dark-color) 0%, #132e61 58%, var(--primary-color) 100%);
+    background: linear-gradient(120deg, var(--secondary-color) 0%, var(--primary-color) 58%, #ef233c 100%);
+}
+
+.arsenal-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 0.5rem 0.8rem 0.5rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    background: rgba(7, 26, 61, 0.78);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.arsenal-mark-badge {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    letter-spacing: 0;
+}
+
+.club-stripes {
+    width: min(100%, 420px);
+    height: 10px;
+    margin-bottom: 1.25rem;
+    background: repeating-linear-gradient(90deg, #fff 0, #fff 28px, var(--primary-color) 28px, var(--primary-color) 56px);
+    box-shadow: 0 2px 0 rgba(7, 26, 61, 0.35);
 }
 
 .eyebrow,
@@ -200,6 +234,10 @@ body {
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 8px 20px rgba(7, 26, 61, 0.12);
+}
+
+.arsenal-panel {
+    background: linear-gradient(145deg, #fff 0%, #fff 78%, #fff1f2 100%);
 }
 
 .home-panel h2 {
