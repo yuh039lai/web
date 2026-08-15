@@ -153,6 +153,41 @@ async function getFootballPlayers() {
     }
 }
 
+// 以匿名使用者身分登入聊天室
+async function signInAsGuest() {
+    const result = await firebase.auth().signInAnonymously();
+    return result.user;
+}
+
+// 即時監聽聊天室訊息
+function listenToChatMessages(onMessages, onError) {
+    return db.collection('chatMessages')
+        .orderBy('createdAt', 'asc')
+        .limitToLast(100)
+        .onSnapshot(snapshot => {
+            const messages = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            onMessages(messages);
+        }, onError);
+}
+
+// 發送聊天室訊息
+async function sendChatMessage(message, nickname) {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        throw new Error('尚未完成訪客登入');
+    }
+
+    await db.collection('chatMessages').add({
+        message: message,
+        nickname: nickname || '訪客',
+        userId: user.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
 // 上傳圖片到 Firebase Storage
 async function uploadImage(file) {
     try {
@@ -183,7 +218,7 @@ async function initializeSampleData() {
 
         // 創建初始設定
         await db.collection('settings').doc('config').set({
-            siteName: '足球世界',
+            siteName: '庭寬的足球小窩',
             siteDescription: '探索足球的歷史、技術與激情',
             contactEmail: 'info@footballworld.com',
             contactPhone: '+886-2-XXXX-XXXX',

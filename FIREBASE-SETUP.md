@@ -62,6 +62,12 @@ const firebaseConfig = {
 4. 打開啟用開關
 5. 點擊「保存」
 
+#### 開啟匿名登入（聊天室需要）
+
+1. 在「身份驗證」的登入方式中選擇「匿名」
+2. 開啟匿名登入
+3. 點擊「保存」
+
 ### Step 7：建立管理帳號
 
 1. 還在「身份驗證」頁面
@@ -87,10 +93,10 @@ const firebaseConfig = {
 
 ```bash
 cd c:\Users\hank5\web
-python -m http.server 8000
+python -m http.server 8080
 ```
 
-然後訪問 `http://localhost:8000`
+然後訪問 `http://localhost:8080`
 
 ### 方法 2：使用 Live Server 擴展
 
@@ -100,9 +106,15 @@ python -m http.server 8000
 
 ### 測試管理後台
 
-1. 訪問 `http://localhost:8000/admin.html`
+1. 訪問 `http://localhost:8080/admin.html`
 2. 使用在 Firebase 建立的帳號登入
 3. 開始編輯內容！
+
+### 測試聊天室
+
+1. 訪問 `http://localhost:8080/chat.html`
+2. 輸入暱稱
+3. 發送訊息與其他訪客聊天
 
 ---
 
@@ -130,6 +142,12 @@ service cloud.firestore {
     match /settings/{document=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
+    }
+
+    // 聊天室：匿名訪客也可以讀取及發送訊息
+    match /chatMessages/{messageId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }
@@ -256,7 +274,10 @@ https://YOUR_USERNAME.github.io/football-world
 
 ### Q: 登入後台時出現 "Firebase is not defined"
 
-**A:** 確認 `firebase-config.js` 中的 Firebase SDK 正確加載，並且設定信息已更新。
+**A:**
+1. 確認頁面載入的是 `firebase-*-compat.js`（例如 `firebase-app-compat.js`）
+2. 確認 `firebase-config.js` 沒有 `import { ... } from "firebase/..."` 這類模組語法
+3. 強制重新整理（`Ctrl + F5`）清除快取後再試一次
 
 ### Q: 文章無法保存
 
@@ -286,8 +307,8 @@ https://YOUR_USERNAME.github.io/football-world
 ```
 c:\Users\hank5\web\
 ├── index.html              # 首頁
-├── blog.html               # 部落格頁面
-├── about.html              # 關於我們
+├── blog.html               # 賽事資訊頁面
+├── about.html              # 關於我
 ├── contact.html            # 聯絡方式
 ├── admin.html              # 管理後台登入
 ├── admin-dashboard.html    # 管理後台儀表板

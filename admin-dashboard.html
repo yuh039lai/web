@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理儀表板 - 足球世界</title>
+    <title>管理儀表板 - 庭寬的足球小窩</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .admin-container {
@@ -326,8 +326,9 @@
     <div class="admin-container">
         <!-- 側邊欄 -->
         <div class="admin-sidebar">
-            <h2>⚽ 足球世界</h2>
+            <h2>⚽ 庭寬的足球小窩</h2>
             <ul class="admin-menu">
+                <li><a href="index.html">🏠 回到主頁</a></li>
                 <li><a href="#dashboard" class="menu-link active" data-section="dashboard">📊 儀表板</a></li>
                 <li><a href="#articles" class="menu-link" data-section="articles">📝 文章管理</a></li>
                 <li><a href="#pages" class="menu-link" data-section="pages">📄 頁面編輯</a></li>
@@ -351,9 +352,9 @@
             <div id="dashboard" class="content-section active">
                 <div class="card">
                     <h2>歡迎回來！</h2>
-                    <p>這是足球世界管理後台。在左邊菜單選擇要管理的內容。</p>
+                    <p>這是庭寬的足球小窩管理後台。在左邊菜單選擇要管理的內容。</p>
                     <ul style="margin: 1rem 0; padding-left: 2rem;">
-                        <li><strong>文章管理</strong> - 新增、編輯、刪除部落格文章</li>
+                        <li><strong>文章管理</strong> - 新增、編輯、刪除分析文章</li>
                         <li><strong>頁面編輯</strong> - 編輯網站頁面的標題、介紹等內容</li>
                         <li><strong>網站設定</strong> - 更新網站名稱、聯絡方式等</li>
                         <li><strong>足球選手</strong> - 查看從 API 獲取的足球選手資料</li>
@@ -478,11 +479,11 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"></script>
+    <!-- Firebase SDK (compat, for global firebase.* API) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script src="firebase-config.js"></script>
     <script src="firebase-utils.js"></script>

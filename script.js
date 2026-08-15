@@ -191,5 +191,5 @@ function debounce(func, delay) {
 }
 
 // ===== 調試日誌 =====
-console.log('足球世界網站已加載！');
+console.log('庭寬的足球小窩網站已加載！');
 console.log('當前頁面：', window.location.pathname);

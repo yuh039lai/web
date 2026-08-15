@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>足球世界 - Football World</title>
+    <title>庭寬的足球小窩</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,87 +12,102 @@
         <div class="container">
             <div class="logo">
                 <span class="logo-icon">⚽</span>
-                <span class="logo-text">足球世界</span>
+                <span class="logo-text">庭寬的足球小窩</span>
             </div>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">首頁</a></li>
-                <li><a href="blog.html">部落格</a></li>
-                <li><a href="about.html">關於我們</a></li>
-                <li><a href="contact.html">聯絡方式</a></li>
-                <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">管理</a></li>
+                <li><a href="about.html">關於我</a></li>
+                <li><a href="blog.html">賽事資訊</a></li>
+                <li><a href="chat.html">聊天室</a></li>
+                <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- 英雄區 -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>歡迎來到足球世界</h1>
-            <p>探索足球的歷史、技術與激情</p>
-            <a href="blog.html" class="cta-button">閱讀我們的文章</a>
-        </div>
-    </section>
-
-    <!-- 特色部分 -->
-    <section class="features">
-        <div class="container">
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📚</div>
-                    <h3>豐富的知識</h3>
-                    <p>深入了解足球的歷史、規則和發展過程</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⭐</div>
-                    <h3>傳奇故事</h3>
-                    <p>發現足球世界中的偉大球星和經典時刻</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🏆</div>
-                    <h3>賽事資訊</h3>
-                    <p>了解世界杯、歐冠等重要足球賽事</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>社群分享</h3>
-                    <p>與其他足球愛好者分享想法和見解</p>
+    <main class="home-content">
+        <section class="home-intro">
+            <div class="container">
+                <p class="eyebrow">WELCOME TO MY FOOTBALL HOME</p>
+                <h1>庭寬的足球小窩</h1>
+                <p class="home-lead">一個分享足球熱情、阿森納消息與比賽想法的小角落。</p>
+                <div class="home-actions">
+                    <a href="blog.html" class="cta-button">查看賽事資訊</a>
+                    <a href="chat.html" class="outline-button">加入聊天室</a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 最新文章預覽 -->
-    <section class="latest-posts">
-        <div class="container">
-            <h2>最新文章</h2>
-            <div class="post-preview">
-                <h3>足球：世界上最美妙的遊戲</h3>
-                <p>足球被稱為"世界上最美妙的遊戲"，是全球最受歡迎的運動。了解更多關於這項全球性運動的信息...</p>
-                <a href="blog.html" class="read-more">閱讀全文 →</a>
+        <section class="home-panels">
+            <div class="container home-panel-grid">
+                <article class="home-panel arsenal-panel">
+                    <p class="panel-kicker">MY TEAM</p>
+                    <h2>Arsenal F.C.</h2>
+                    <p>兵工廠／阿森納是我最喜歡的球隊。這裡會慢慢整理我關注的球員、比賽與球隊故事。</p>
+                    <a href="about.html" class="text-link">了解關於我 →</a>
+                </article>
+                <article class="home-panel match-panel">
+                    <p class="panel-kicker">EXPLORE</p>
+                    <h2>一起聊足球</h2>
+                    <p>想分享比賽心得、預測賽果，或單純找人聊球？歡迎來聊天室和大家交流。</p>
+                    <a href="chat.html" class="text-link">前往聊天室 →</a>
+                </article>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="home-articles">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="panel-kicker">LATEST</p>
+                    <h2>最新賽事資訊</h2>
+                </div>
+                <div id="homeArticles" class="home-article-grid">
+                    <p class="empty-state">正在載入內容...</p>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- 頁腳 -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 足球世界 Football World. 保留所有權利。</p>
+            <p>&copy; 2026 庭寬的足球小窩. 保留所有權利。</p>
             <div class="social-links">
-                <a href="#">Facebook</a>
-                <a href="#">Twitter</a>
-                <a href="#">Instagram</a>
+                <a href="#">Discord</a>
+                <a href="#">X</a>
+                <a href="#">IG</a>
             </div>
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js"></script>
+    <!-- Firebase SDK (compat, for global firebase.* API) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script src="firebase-config.js"></script>
     <script src="firebase-utils.js"></script>
     <script src="script.js"></script>
+    <script>
+        async function loadHomeArticles() {
+            const container = document.getElementById('homeArticles');
+            const articles = await getArticles();
+            if (!articles.length) {
+                container.innerHTML = '<p class="empty-state">目前還沒有賽事資訊，登入帳號後即可新增。</p>';
+                return;
+            }
+
+            container.innerHTML = articles.slice(0, 3).map(article => `
+                <article class="home-article-card">
+                    <p class="panel-kicker">${article.category || '賽事資訊'}</p>
+                    <h3>${article.title || '未命名文章'}</h3>
+                    <p>${article.content || ''}</p>
+                    <a href="blog.html" class="text-link">查看完整內容 →</a>
+                </article>
+            `).join('');
+        }
+
+        loadHomeArticles();
+    </script>
 </body>
 </html>

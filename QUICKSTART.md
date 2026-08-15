@@ -1,4 +1,4 @@
-# 足球世界 - Firebase 版本 🎉
+# 庭寬的足球小窩 - Firebase 版本 🎉
 
 一個完整的足球網站管理系統，朋友可以直接登入編輯所有內容！
 
@@ -28,9 +28,9 @@ python -m http.server 8000
 | 檔案 | 說明 |
 |------|------|
 | `index.html` | 首頁 |
-| `blog.html` | 部落格文章列表 |
-| `about.html` | 關於我們 |
-| `contact.html` | 聯絡方式 |
+| `blog.html` | 賽事資訊列表 |
+| `about.html` | 關於我 |
+| `chat.html` | 聊天室 |
 | `admin.html` | 登入頁面 |
 | `admin-dashboard.html` | 管理後台 |
 | `firebase-config.js` | Firebase 設定（需要更新） |

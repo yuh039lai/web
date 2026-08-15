@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天室 - 庭寬的足球小窩</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">⚽</span>
+                <span class="logo-text">庭寬的足球小窩</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首頁</a></li>
+                <li><a href="about.html">關於我</a></li>
+                <li><a href="blog.html">賽事資訊</a></li>
+                <li><a href="chat.html" class="active">聊天室</a></li>
+                <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="chat-section">
+        <div class="container chat-container">
+            <h1>足球聊天室</h1>
+            <p class="subtitle">和大家一起聊聊球賽、球員與足球大小事。</p>
+
+            <section class="chat-panel" aria-label="足球聊天室">
+                <div class="chat-identity">
+                    <label for="nickname">暱稱</label>
+                    <input id="nickname" type="text" maxlength="24" placeholder="輸入你的暱稱">
+                </div>
+
+                <div id="chatStatus" class="chat-status">正在連線聊天室...</div>
+                <div id="messages" class="messages" aria-live="polite"></div>
+
+                <form id="chatForm" class="chat-form">
+                    <label class="sr-only" for="message">聊天訊息</label>
+                    <input id="message" type="text" maxlength="300" placeholder="輸入訊息..." autocomplete="off" required>
+                    <button type="submit" class="submit-btn">發送</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 庭寬的足球小窩. 保留所有權利。</p>
+            <div class="social-links">
+                <a href="#">Discord</a>
+                <a href="#">X</a>
+                <a href="#">IG</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="firebase-utils.js"></script>
+    <script>
+        const nicknameInput = document.getElementById('nickname');
+        const messageInput = document.getElementById('message');
+        const chatForm = document.getElementById('chatForm');
+        const messagesElement = document.getElementById('messages');
+        const statusElement = document.getElementById('chatStatus');
+        let stopListening = null;
+
+        nicknameInput.value = localStorage.getItem('chatNickname') || '';
+
+        function renderMessages(messages) {
+            messagesElement.innerHTML = messages.map(item => {
+                const timestamp = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString('zh-TW') : '剛剛';
+                const message = document.createElement('div');
+                message.className = 'chat-message';
+                message.innerHTML = `<strong></strong><span></span><time></time>`;
+                message.querySelector('strong').textContent = item.nickname || '訪客';
+                message.querySelector('span').textContent = item.message || '';
+                message.querySelector('time').textContent = timestamp;
+                return message.outerHTML;
+            }).join('');
+            messagesElement.scrollTop = messagesElement.scrollHeight;
+        }
+
+        async function startChat() {
+            try {
+                await signInAsGuest();
+                statusElement.textContent = '已連線，可以開始聊天';
+                statusElement.className = 'chat-status connected';
+                stopListening = listenToChatMessages(renderMessages, () => {
+                    statusElement.textContent = '訊息載入失敗，請稍後再試';
+                    statusElement.className = 'chat-status error';
+                });
+            } catch (error) {
+                console.error(error);
+                statusElement.textContent = '聊天室尚未啟用，請在 Firebase 開啟匿名登入';
+                statusElement.className = 'chat-status error';
+            }
+        }
+
+        chatForm.addEventListener('submit', async event => {
+            event.preventDefault();
+            const message = messageInput.value.trim();
+            const nickname = nicknameInput.value.trim() || '訪客';
+            if (!message) return;
+
+            try {
+                messageInput.disabled = true;
+                await sendChatMessage(message, nickname);
+                localStorage.setItem('chatNickname', nickname);
+                messageInput.value = '';
+            } catch (error) {
+                statusElement.textContent = '訊息發送失敗，請確認 Firebase 設定';
+                statusElement.className = 'chat-status error';
+            } finally {
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        });
+
+        startChat();
+    </script>
+</body>
+</html>
