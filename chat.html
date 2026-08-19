@@ -57,12 +57,8 @@
         </div>
     </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="firebase-utils.js"></script>
+    <script src="api-config.js"></script>
+    <script src="api-utils.js"></script>
     <script>
         const nicknameInput = document.getElementById('nickname');
         const messageInput = document.getElementById('message');
@@ -98,7 +94,7 @@
                 });
             } catch (error) {
                 console.error(error);
-                statusElement.textContent = '聊天室尚未啟用，請在 Firebase 開啟匿名登入';
+                statusElement.textContent = '聊天室連線失敗，請稍後再試';
                 statusElement.className = 'chat-status error';
             }
         }
@@ -115,7 +111,7 @@
                 localStorage.setItem('chatNickname', nickname);
                 messageInput.value = '';
             } catch (error) {
-                statusElement.textContent = '訊息發送失敗，請確認 Firebase 設定';
+                statusElement.textContent = '訊息發送失敗，請稍後再試';
                 statusElement.className = 'chat-status error';
             } finally {
                 messageInput.disabled = false;

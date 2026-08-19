@@ -145,7 +145,7 @@
                 <div class="form-group">
                     <label for="email">電子郵件</label>
                     <input type="email" id="email" name="email" required placeholder="your@email.com">
-                    <div class="help-text">使用你的 Firebase 帳號登入</div>
+                    <div class="help-text">使用管理員帳號登入（由 Render 後端驗證）</div>
                 </div>
 
                 <div class="form-group">
@@ -170,14 +170,8 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (compat, for global firebase.* API) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-
-    <script src="firebase-config.js"></script>
-    <script src="firebase-utils.js"></script>
+    <script src="api-config.js"></script>
+    <script src="api-utils.js"></script>
 
     <script>
         // 登入表單提交

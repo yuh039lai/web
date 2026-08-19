@@ -479,14 +479,8 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (compat, for global firebase.* API) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-
-    <script src="firebase-config.js"></script>
-    <script src="firebase-utils.js"></script>
+    <script src="api-config.js"></script>
+    <script src="api-utils.js"></script>
 
     <script>
         let currentEditingArticleId = null;
@@ -552,18 +546,21 @@
                     return;
                 }
 
-                articlesList.innerHTML = articles.map(article => `
+                articlesList.innerHTML = articles.map(article => {
+                    const createdAt = article.createdAt ? new Date(article.createdAt).toLocaleDateString('zh-TW') : '未知日期';
+                    return `
                     <li>
                         <div class="article-info">
                             <h3>${article.title}</h3>
-                            <p>分類: ${article.category} | ${new Date(article.createdAt.seconds * 1000).toLocaleDateString('zh-TW')}</p>
+                            <p>分類: ${article.category} | ${createdAt}</p>
                         </div>
                         <div class="article-actions">
                             <button class="btn btn-primary" onclick="editArticle('${article.id}')">編輯</button>
                             <button class="btn btn-danger" onclick="deleteArticleHandler('${article.id}')">刪除</button>
                         </div>
                     </li>
-                `).join('');
+                `;
+                }).join('');
             } catch (error) {
                 console.error('加載文章失敗:', error);
                 document.getElementById('articlesList').innerHTML = '<li>加載失敗</li>';

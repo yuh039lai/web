@@ -1,6 +1,3 @@
-# Firebase 設定（包含敏感信息）
-firebase-config.js
-
 # IDE
 .vscode/
 .idea/
@@ -11,7 +8,6 @@ Thumbs.db
 
 # Node.js
 node_modules/
-package-lock.json
 
 # 部署
 dist/

@@ -1,162 +1,63 @@
-# 庭寬的足球小窩
+# 庭寬的足球小窩（Render 後端版）
 
-一個現代化的足球主題網站，展示足球知識、賽事信息和相關文章。
+這個專案採用「靜態前端 + Render 部署 Node.js 後端 API」。
 
-## 🌟 功能特性
+## 架構
 
-- **首頁** - 吸引人的英雄區和特色卡片
-- **賽事資訊** - 詳細的足球文章和知識
-- **關於我** - 個人介紹
-- **聊天室** - 和其他足球愛好者交流
+- 前端：index.html、blog.html、chat.html、admin.html 等靜態頁面
+- 後端：server/index.js（Express API）
+- 資料儲存：server/db.json（開發用途）
+- API 設定：api-config.js
 
-## 📁 項目結構
+## 主要功能
 
-```
-football_blog/
-├── index.html          # 首頁
-├── blog.html           # 賽事資訊頁面
-├── about.html          # 關於我頁面
-├── contact.html        # 聯絡我們頁面
-├── style.css           # 全局樣式表
-├── script.js           # JavaScript 功能
-├── football_blog.md    # 原始 Markdown 博客文章
-└── README.md           # 本文件
-```
+- 管理員登入（JWT）
+- 文章 CRUD（新增/編輯/刪除/查詢）
+- 網站設定讀寫
+- 聊天室訊息（輪詢）
+- 足球選手資料代理（透過後端呼叫外部 API）
 
-## 🚀 快速開始
+## 本機啟動
 
-### 方法1：直接打開 HTML 文件
-
-1. 使用文件管理器打開項目文件夾
-2. 雙擊 `index.html` 文件
-3. 網站將在默認瀏覽器中打開
-
-### 方法2：使用 VS Code 的 Live Server 擴展
-
-1. 在 VS Code 中打開項目文件夾
-2. 安裝 "Live Server" 擴展
-3. 右鍵點擊 `index.html` 並選擇 "Open with Live Server"
-4. 網站將在瀏覽器中打開，並支持熱重載
-
-### 方法3：使用 Python 簡易服務器
-
-在項目文件夾中打開命令行，運行：
+1. 安裝套件
 
 ```bash
-# Python 3
-python -m http.server 8000
-
-# Python 2
-python -m SimpleHTTPServer 8000
+npm install
 ```
 
-然後在瀏覽器中訪問 `http://localhost:8000`
+2. 啟動後端
 
-## 🎨 設計特色
-
-- **響應式設計** - 在手機、平板和桌面上都能完美顯示
-- **現代 UI** - 使用漸變色、陰影和動畫效果
-- **易於導航** - 清晰的導航菜單和頁面結構
-- **可訪問性** - 符合網頁可訪問性標準
-
-## 📝 頁面詳情
-
-### 首頁 (index.html)
-- 英雄區域，展示網站主題
-- 四個特色卡片，介紹網站的主要內容
-- 最新文章預覽部分
-
-### 賽事資訊 (blog.html)
-- 完整的足球知識文章
-- 包含歷史、規則、魅力、賽事和球星信息
-- 文章元數據（發布日期、作者、分類）
-
-### 關於我 (about.html)
-- 個人介紹
-- 喜歡的球隊
-
-### 聯絡方式 (contact.html)
-- 聯絡表格（帶驗證）
-- 多種聯絡方式（郵件、電話、地址）
-- 常見問題（FAQ）部分
-
-## 🔧 自訂說明
-
-### 更改顏色主題
-
-編輯 `style.css` 中的 CSS 變數：
-
-```css
-:root {
-    --primary-color: #1a73e8;      /* 主色 */
-    --secondary-color: #34a853;    /* 輔助色 */
-    --accent-color: #fbbc04;       /* 強調色 */
-    --dark-color: #202124;         /* 暗色 */
-    --light-color: #f8f9fa;        /* 淺色 */
-}
+```bash
+npm start
 ```
 
-### 編輯聯絡信息
+3. 開啟前端頁面（建議用 Live Server）
 
-在 `contact.html` 中更新以下信息：
-- 電子郵件地址
-- 電話號碼
-- 物理地址
-- 營業時間
-- 社交媒體鏈接
+- 前端預設會打 http://localhost:3000/api
 
-### 添加新頁面
+## Render 部署後端
 
-1. 創建新的 HTML 文件（例如 `gallery.html`）
-2. 複製導航欄結構
-3. 在所有 HTML 文件中更新導航菜單
-4. 使用 `style.css` 中的類來保持一致的樣式
+專案已提供 render.yaml，可直接從 GitHub 匯入。
 
-## 📱 瀏覽器兼容性
+### 必填環境變數
 
-- Chrome（最新版本）
-- Firefox（最新版本）
-- Safari（最新版本）
-- Edge（最新版本）
-- 移動瀏覽器（iOS Safari、Chrome Mobile）
+- JWT_SECRET：JWT 簽章密鑰
+- ADMIN_EMAIL：管理員帳號
+- ADMIN_PASSWORD：管理員密碼
 
-## 🔒 表格提交
+### 選填
 
-目前，聯絡表格在前端進行驗證和模擬提交。要使其完全功能化，需要：
+- FOOTBALL_API_KEY：若要啟用球員資料查詢
 
-1. 設置後端服務器
-2. 配置表格處理端點
-3. 添加郵件發送功能
-4. 實現數據存儲
+## 前端串接 Render API
 
-## 📚 內容來源
+部署後，請把 api-config.js 裡的：
 
-- 足球知識來自維基百科和足球百科全書
-- 圖片可從 Unsplash 或其他免費圖片庫獲取
-- 設計靈感來自現代網站設計趨勢
+- https://YOUR-RENDER-SERVICE.onrender.com/api
 
-## ✨ 未來改進
+改成你的 Render 服務 URL。
 
-- [ ] 添加搜索功能
-- [ ] 實現用戶評論系統
-- [ ] 添加多語言支持
-- [ ] 集成社交媒體分享
-- [ ] 實現用戶註冊和登錄
-- [ ] 添加視頻内容
-- [ ] 實現完整的後端表格處理
+## 注意事項
 
-## 📄 授權
-
-此項目提供用於學習和個人使用。
-
-## 👨‍💻 作者
-
-由 GitHub Copilot 創建的示例項目
-
-## 📞 支持
-
-如有任何問題，請通過聯絡頁面與我們聯繫。
-
----
-
-**最後更新：** 2026年8月16日
+- server/db.json 適合開發與測試，若用於正式環境，建議改接 Render Postgres。
+- 聊天室目前為輪詢模式（每 3 秒抓新訊息）。

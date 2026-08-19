@@ -1,0 +1,19 @@
+{
+  "admins": [
+    {
+      "id": "sIkRrEz9Js7p3dhi0k129",
+      "email": "admin@example.com",
+      "passwordHash": "$2b$10$CmYcHreg.sf66qibX1MxvOzvphe47.EJHHgQmjNDduHZRYcbr/Uiq",
+      "name": "Admin"
+    }
+  ],
+  "settings": {
+    "siteName": "庭寬的足球小窩",
+    "siteDescription": "探索足球的歷史、技術與激情",
+    "contactEmail": "info@footballworld.com",
+    "contactPhone": "+886-2-XXXX-XXXX",
+    "contactAddress": "台灣，台北市"
+  },
+  "articles": [],
+  "chatMessages": []
+}
