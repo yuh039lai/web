@@ -14,5 +14,5 @@ services:
         value: admin@example.com
       - key: ADMIN_PASSWORD
         sync: false
-      - key: FOOTBALL_API_KEY
-        sync: false
+      - key: THESPORTSDB_API_KEY
+        value: "3"

@@ -17,6 +17,7 @@
                 <li><a href="index.html">首頁</a></li>
                 <li><a href="about.html">關於我</a></li>
                 <li><a href="blog.html">賽事資訊</a></li>
+                <li><a href="players.html">球員資料</a></li>
                 <li><a href="chat.html" class="active">聊天室</a></li>
                 <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
             </ul>
@@ -25,23 +26,30 @@
 
     <main class="chat-section">
         <div class="container chat-container">
-            <h1>足球聊天室</h1>
-            <p class="subtitle">和大家一起聊聊球賽、球員與足球大小事。</p>
+            <h1>足球社群牆</h1>
+            <p class="subtitle">先貼文，再在每篇貼文下方留言討論。</p>
 
-            <section class="chat-panel" aria-label="足球聊天室">
+            <section class="chat-panel" aria-label="足球社群牆">
                 <div class="chat-identity">
                     <label for="nickname">暱稱</label>
                     <input id="nickname" type="text" maxlength="24" placeholder="輸入你的暱稱">
                 </div>
 
-                <div id="chatStatus" class="chat-status">正在連線聊天室...</div>
-                <div id="messages" class="messages" aria-live="polite"></div>
+                <div id="chatStatus" class="chat-status">正在連線社群牆...</div>
 
-                <form id="chatForm" class="chat-form">
-                    <label class="sr-only" for="message">聊天訊息</label>
-                    <input id="message" type="text" maxlength="300" placeholder="輸入訊息..." autocomplete="off" required>
-                    <button type="submit" class="submit-btn">發送</button>
+                <form id="postForm" class="community-post-form">
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="postTitle" class="sr-only">貼文標題</label>
+                        <input id="postTitle" type="text" maxlength="120" placeholder="貼文標題" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label for="postContent" class="sr-only">貼文內容</label>
+                        <textarea id="postContent" rows="4" maxlength="2000" placeholder="分享你想討論的內容" required></textarea>
+                    </div>
+                    <button id="postSubmitBtn" type="submit" class="submit-btn">發布貼文</button>
                 </form>
+
+                <div id="communityPosts" class="community-post-list" aria-live="polite"></div>
             </section>
         </div>
     </main>
@@ -61,65 +69,137 @@
     <script src="api-utils.js"></script>
     <script>
         const nicknameInput = document.getElementById('nickname');
-        const messageInput = document.getElementById('message');
-        const chatForm = document.getElementById('chatForm');
-        const messagesElement = document.getElementById('messages');
+        const postTitleInput = document.getElementById('postTitle');
+        const postContentInput = document.getElementById('postContent');
+        const postForm = document.getElementById('postForm');
+        const postsElement = document.getElementById('communityPosts');
+        const postSubmitBtn = document.getElementById('postSubmitBtn');
         const statusElement = document.getElementById('chatStatus');
-        let stopListening = null;
+        let pollTimer = null;
 
         nicknameInput.value = localStorage.getItem('chatNickname') || '';
 
-        function renderMessages(messages) {
-            messagesElement.innerHTML = messages.map(item => {
-                const timestamp = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString('zh-TW') : '剛剛';
-                const message = document.createElement('div');
-                message.className = 'chat-message';
-                message.innerHTML = `<strong></strong><span></span><time></time>`;
-                message.querySelector('strong').textContent = item.nickname || '訪客';
-                message.querySelector('span').textContent = item.message || '';
-                message.querySelector('time').textContent = timestamp;
-                return message.outerHTML;
-            }).join('');
-            messagesElement.scrollTop = messagesElement.scrollHeight;
+        function formatTime(value) {
+            if (!value) return '剛剛';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '剛剛';
+            return date.toLocaleString('zh-TW');
         }
 
-        async function startChat() {
-            try {
-                await signInAsGuest();
-                statusElement.textContent = '已連線，可以開始聊天';
-                statusElement.className = 'chat-status connected';
-                stopListening = listenToChatMessages(renderMessages, () => {
-                    statusElement.textContent = '訊息載入失敗，請稍後再試';
-                    statusElement.className = 'chat-status error';
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderPosts(posts) {
+            if (!posts.length) {
+                postsElement.innerHTML = '<p class="empty-state">目前還沒有貼文，來發第一篇吧！</p>';
+                return;
+            }
+
+            postsElement.innerHTML = posts.map(post => {
+                const comments = Array.isArray(post.comments) ? post.comments : [];
+                return `
+                    <article class="community-post">
+                        <header class="community-post-header">
+                            <h2>${escapeHtml(post.title)}</h2>
+                            <div class="post-meta">
+                                <span class="post-category">${escapeHtml(post.nickname || '訪客')}</span>
+                                <span>${formatTime(post.createdAt)}</span>
+                            </div>
+                        </header>
+                        <p class="community-post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</p>
+
+                        <section class="comment-list" aria-label="留言列表">
+                            ${comments.length ? comments.map(comment => `
+                                <div class="comment-item">
+                                    <div>
+                                        <strong>${escapeHtml(comment.nickname || '訪客')}</strong>
+                                        <p>${escapeHtml(comment.content).replace(/\n/g, '<br>')}</p>
+                                    </div>
+                                    <time>${formatTime(comment.createdAt)}</time>
+                                </div>
+                            `).join('') : '<p class="empty-state">還沒有留言</p>'}
+                        </section>
+
+                        <form class="comment-form" data-post-id="${post.id}">
+                            <label class="sr-only" for="comment-${post.id}">留言內容</label>
+                            <input id="comment-${post.id}" type="text" maxlength="500" required placeholder="留言回覆這篇貼文...">
+                            <button type="submit" class="submit-btn">留言</button>
+                        </form>
+                    </article>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.comment-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const target = event.currentTarget;
+                    const postId = target.dataset.postId;
+                    const input = target.querySelector('input');
+                    const content = input.value.trim();
+                    const nickname = nicknameInput.value.trim() || '訪客';
+
+                    if (!content) return;
+
+                    try {
+                        input.disabled = true;
+                        await addCommunityComment(postId, content, nickname);
+                        localStorage.setItem('chatNickname', nickname);
+                        input.value = '';
+                        await loadCommunityPosts();
+                    } catch (error) {
+                        statusElement.textContent = `留言失敗：${error.message}`;
+                        statusElement.className = 'chat-status error';
+                    } finally {
+                        input.disabled = false;
+                    }
                 });
+            });
+        }
+
+        async function loadCommunityPosts() {
+            try {
+                const posts = await getCommunityPosts();
+                renderPosts(posts || []);
+                statusElement.textContent = '已連線，可以貼文與留言';
+                statusElement.className = 'chat-status connected';
             } catch (error) {
-                console.error(error);
-                statusElement.textContent = '聊天室連線失敗，請稍後再試';
+                statusElement.textContent = `資料載入失敗：${error.message}`;
                 statusElement.className = 'chat-status error';
             }
         }
 
-        chatForm.addEventListener('submit', async event => {
+        postForm.addEventListener('submit', async event => {
             event.preventDefault();
-            const message = messageInput.value.trim();
+            const title = postTitleInput.value.trim();
+            const content = postContentInput.value.trim();
             const nickname = nicknameInput.value.trim() || '訪客';
-            if (!message) return;
+            if (!title || !content) return;
 
             try {
-                messageInput.disabled = true;
-                await sendChatMessage(message, nickname);
+                postSubmitBtn.disabled = true;
+                postSubmitBtn.textContent = '發布中...';
+                await addCommunityPost(title, content, nickname);
                 localStorage.setItem('chatNickname', nickname);
-                messageInput.value = '';
+                postTitleInput.value = '';
+                postContentInput.value = '';
+                await loadCommunityPosts();
             } catch (error) {
-                statusElement.textContent = '訊息發送失敗，請稍後再試';
+                statusElement.textContent = `貼文發送失敗：${error.message}`;
                 statusElement.className = 'chat-status error';
             } finally {
-                messageInput.disabled = false;
-                messageInput.focus();
+                postSubmitBtn.disabled = false;
+                postSubmitBtn.textContent = '發布貼文';
             }
         });
 
-        startChat();
+        loadCommunityPosts();
+        pollTimer = setInterval(loadCommunityPosts, 4000);
     </script>
 </body>
 </html>

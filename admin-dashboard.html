@@ -484,6 +484,7 @@
 
     <script>
         let currentEditingArticleId = null;
+        let cachedSettings = null;
 
         // 頁面加載
         document.addEventListener('DOMContentLoaded', async () => {
@@ -499,6 +500,7 @@
             // 加載初始資料
             await loadArticles();
             await loadSettings();
+            renderPagesEditor();
             await loadStats();
 
             // 設置菜單點擊事件
@@ -645,6 +647,7 @@
             try {
                 const settings = await getSettings();
                 if (settings) {
+                    cachedSettings = settings;
                     document.getElementById('siteName').value = settings.siteName || '';
                     document.getElementById('siteDescription').value = settings.siteDescription || '';
                     document.getElementById('contactEmail').value = settings.contactEmail || '';
@@ -653,6 +656,61 @@
                 }
             } catch (error) {
                 console.error('加載設定失敗:', error);
+            }
+        }
+
+        function renderPagesEditor() {
+            const pageContent = cachedSettings?.pageContent || {};
+            const container = document.getElementById('pagesContainer');
+            container.innerHTML = `
+                <form id="pagesForm">
+                    <div class="form-group">
+                        <label for="aboutIntro">關於我 - 自我介紹</label>
+                        <textarea id="aboutIntro" rows="4">${pageContent.aboutIntro || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="favoriteTeam">關於我 - 喜愛球隊</label>
+                        <input id="favoriteTeam" type="text" value="${pageContent.favoriteTeam || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="siteAbout">關於網站說明</label>
+                        <textarea id="siteAbout" rows="4">${pageContent.siteAbout || ''}</textarea>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="discordId">聯絡頁 - Discord ID</label>
+                            <input id="discordId" type="text" value="${pageContent.discordId || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="instagramId">聯絡頁 - Instagram ID</label>
+                            <input id="instagramId" type="text" value="${pageContent.instagramId || ''}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">保存頁面內容</button>
+                </form>
+            `;
+
+            document.getElementById('pagesForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await savePagesContent();
+            });
+        }
+
+        async function savePagesContent() {
+            try {
+                const pageContent = {
+                    aboutIntro: document.getElementById('aboutIntro').value,
+                    favoriteTeam: document.getElementById('favoriteTeam').value,
+                    siteAbout: document.getElementById('siteAbout').value,
+                    discordId: document.getElementById('discordId').value,
+                    instagramId: document.getElementById('instagramId').value
+                };
+
+                await updateSettings({ pageContent });
+                cachedSettings = { ...(cachedSettings || {}), pageContent };
+                showSuccessMessage('頁面內容已保存');
+            } catch (error) {
+                alert('保存頁面內容失敗: ' + error.message);
             }
         }
 
@@ -700,7 +758,9 @@
                 const playersContainer = document.getElementById('playersContainer');
                 playersContainer.innerHTML = '<p>載入中...</p>';
 
-                const players = await getFootballPlayers();
+                const result = await getFootballPlayers();
+                const players = result.players || [];
+                const playerNicknames = cachedSettings?.playerNicknames || {};
 
                 if (players.length === 0) {
                     playersContainer.innerHTML = '<p>暫無資料。請確認 API Key 是否正確設定。</p>';
@@ -711,16 +771,48 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                         ${players.slice(0, 12).map(player => `
                             <div style="padding: 1rem; background: white; border: 1px solid var(--border-color); border-radius: 5px;">
-                                <h4>${player.player?.name || 'N/A'}</h4>
-                                <p><strong>隊伍:</strong> ${player.statistics?.[0]?.team?.name || 'N/A'}</p>
-                                <p><strong>位置:</strong> ${player.statistics?.[0]?.games?.position || 'N/A'}</p>
-                                <p><strong>號碼:</strong> ${player.statistics?.[0]?.games?.number || 'N/A'}</p>
+                                <h4>${player.name || player.player?.name || 'N/A'}</h4>
+                                <p><strong>隊伍:</strong> ${player.team || player.statistics?.[0]?.team?.name || 'N/A'}</p>
+                                <p><strong>位置:</strong> ${player.position || player.statistics?.[0]?.games?.position || 'N/A'}</p>
+                                <p><strong>號碼:</strong> ${player.number || player.statistics?.[0]?.games?.number || 'N/A'}</p>
+                                <div style="margin-top: 0.75rem;">
+                                    <label style="display:block; font-size:0.85rem; color:#555; margin-bottom:0.35rem;">綽號</label>
+                                    <input type="text" data-player-id="${player.id || player.name}" value="${playerNicknames[player.id || player.name] || ''}" placeholder="例如: 忍者龜" style="width:100%; padding:0.5rem; border:1px solid var(--border-color); border-radius:4px;">
+                                </div>
                             </div>
                         `).join('')}
                     </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" id="saveNicknamesBtn">保存綽號設定</button>
+                    </div>
                 `;
+
+                document.getElementById('saveNicknamesBtn').addEventListener('click', async () => {
+                    await savePlayerNicknames(playersContainer);
+                });
             } catch (error) {
                 document.getElementById('playersContainer').innerHTML = '<p>加載失敗: ' + error.message + '</p>';
+            }
+        }
+
+        async function savePlayerNicknames(container) {
+            try {
+                const nextMap = { ...(cachedSettings?.playerNicknames || {}) };
+                container.querySelectorAll('input[data-player-id]').forEach((input) => {
+                    const key = input.getAttribute('data-player-id');
+                    const value = input.value.trim();
+                    if (value) {
+                        nextMap[key] = value;
+                    } else {
+                        delete nextMap[key];
+                    }
+                });
+
+                await updateSettings({ playerNicknames: nextMap });
+                cachedSettings = { ...(cachedSettings || {}), playerNicknames: nextMap };
+                showSuccessMessage('球員綽號已保存');
+            } catch (error) {
+                alert('保存綽號失敗: ' + error.message);
             }
         }
 

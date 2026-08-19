@@ -131,6 +131,19 @@
         .signup-link a:hover {
             text-decoration: underline;
         }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -140,6 +153,7 @@
             <p>庭寬的足球小窩管理系統</p>
 
             <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
 
             <form id="loginForm">
                 <div class="form-group">
@@ -156,13 +170,41 @@
                 <button type="submit" class="login-btn" id="loginBtn">登入</button>
             </form>
 
+            <form id="signupForm" class="hidden">
+                <div class="form-group">
+                    <label for="signupName">顯示名稱</label>
+                    <input type="text" id="signupName" name="signupName" required placeholder="你的名字">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">電子郵件</label>
+                    <input type="email" id="signupEmail" name="signupEmail" required placeholder="your@email.com">
+                    <div class="help-text">建立後可用此帳號登入後台管理內容</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">密碼</label>
+                    <input type="password" id="signupPassword" name="signupPassword" minlength="8" required placeholder="至少 8 碼">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPasswordConfirm">確認密碼</label>
+                    <input type="password" id="signupPasswordConfirm" name="signupPasswordConfirm" minlength="8" required placeholder="再輸入一次密碼">
+                </div>
+
+                <button type="submit" class="login-btn" id="signupBtn">建立帳號</button>
+            </form>
+
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>正在登入...</p>
+                <p id="loadingText">處理中...</p>
             </div>
 
-            <div class="signup-link">
-                沒有帳號？<a href="#" onclick="toggleSignup()">點這裡註冊</a>
+            <div class="signup-link" id="loginSwitchLink">
+                沒有帳號？<a href="#" onclick="toggleSignup(true)">點這裡註冊</a>
+            </div>
+            <div class="signup-link hidden" id="signupSwitchLink">
+                已有帳號？<a href="#" onclick="toggleSignup(false)">回到登入</a>
             </div>
             <div class="signup-link">
                 <a href="index.html">← 回到主頁</a>
@@ -174,20 +216,51 @@
     <script src="api-utils.js"></script>
 
     <script>
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+
+        function showError(message) {
+            successDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            errorDiv.style.display = 'none';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function clearMessages() {
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+        }
+
+        function setLoadingState(enabled, text) {
+            loading.style.display = enabled ? 'block' : 'none';
+            if (text) {
+                loadingText.textContent = text;
+            }
+            loginBtn.disabled = enabled;
+            signupBtn.disabled = enabled;
+        }
+
         // 登入表單提交
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
-            const loading = document.getElementById('loading');
-            const loginBtn = document.getElementById('loginBtn');
 
             try {
-                errorDiv.style.display = 'none';
-                loading.style.display = 'block';
-                loginBtn.disabled = true;
+                clearMessages();
+                setLoadingState(true, '正在登入...');
 
                 await loginUser(email, password);
                 
@@ -195,10 +268,36 @@
                 window.location.href = 'admin-dashboard.html';
             } catch (error) {
                 console.error('登入錯誤:', error);
-                errorDiv.textContent = '登入失敗：' + error.message;
-                errorDiv.style.display = 'block';
-                loading.style.display = 'none';
-                loginBtn.disabled = false;
+                showError('登入失敗：' + error.message);
+                setLoadingState(false);
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupPasswordConfirm').value;
+
+            if (password !== confirmPassword) {
+                showError('兩次密碼不一致');
+                return;
+            }
+
+            try {
+                clearMessages();
+                setLoadingState(true, '正在建立帳號...');
+                await registerUser(name, email, password);
+                showSuccess('註冊成功，正在進入管理頁面...');
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 800);
+            } catch (error) {
+                console.error('註冊錯誤:', error);
+                showError('註冊失敗：' + error.message);
+                setLoadingState(false);
             }
         });
 
@@ -212,8 +311,12 @@
         });
 
         // 註冊切換
-        function toggleSignup() {
-            alert('註冊功能正在開發中。請聯絡管理員添加新帳號。');
+        function toggleSignup(showSignup) {
+            clearMessages();
+            loginForm.classList.toggle('hidden', showSignup);
+            signupForm.classList.toggle('hidden', !showSignup);
+            document.getElementById('loginSwitchLink').classList.toggle('hidden', showSignup);
+            document.getElementById('signupSwitchLink').classList.toggle('hidden', !showSignup);
         }
     </script>
 </body>

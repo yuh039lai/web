@@ -18,6 +18,7 @@
                 <li><a href="index.html">首頁</a></li>
                 <li><a href="about.html">關於我</a></li>
                 <li><a href="blog.html" class="active">賽事資訊</a></li>
+                <li><a href="players.html">球員資料</a></li>
                 <li><a href="chat.html">聊天室</a></li>
                 <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
             </ul>
@@ -28,6 +29,30 @@
     <section class="blog-section">
         <div class="container">
             <h1>賽事資訊</h1>
+
+            <section class="blog-post composer" aria-label="發布新文章">
+                <h2>發布新文章</h2>
+                <p id="blogComposerHint" class="subtitle" style="text-align: left; margin-bottom: 1rem;">請先登入後台帳號，才能發布文章。</p>
+                <form id="blogComposerForm">
+                    <div class="form-group">
+                        <label for="postTitle">標題</label>
+                        <input id="postTitle" type="text" maxlength="120" required placeholder="輸入文章標題">
+                    </div>
+                    <div class="form-group">
+                        <label for="postCategory">分類</label>
+                        <input id="postCategory" type="text" maxlength="40" required placeholder="例如：賽事分析、足球知識">
+                    </div>
+                    <div class="form-group">
+                        <label for="postImageUrl">圖片網址（可選）</label>
+                        <input id="postImageUrl" type="url" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="postContent">內容</label>
+                        <textarea id="postContent" rows="6" required placeholder="分享你的觀點與內容"></textarea>
+                    </div>
+                    <button id="publishBtn" type="submit" class="submit-btn">發布文章</button>
+                </form>
+            </section>
 
             <div id="articlesContainer" class="articles-container">
                 <article class="blog-post">
@@ -53,6 +78,18 @@
     <script src="api-utils.js"></script>
     <script src="script.js"></script>
     <script>
+        const composerForm = document.getElementById('blogComposerForm');
+        const composerHint = document.getElementById('blogComposerHint');
+        const publishBtn = document.getElementById('publishBtn');
+        let currentUser = null;
+
+        function formatTime(value) {
+            if (!value) return '剛剛';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '剛剛';
+            return date.toLocaleString('zh-TW');
+        }
+
         async function loadPublicArticles() {
             const container = document.getElementById('articlesContainer');
             const articles = await getArticles();
@@ -69,6 +106,8 @@
                 <article class="blog-post">
                     <div class="post-meta">
                         <span class="post-category">${article.category || '賽事資訊'}</span>
+                        <span>作者：${article.authorName || '站內作者'}</span>
+                        <span>發布：${formatTime(article.createdAt)}</span>
                     </div>
                     <h2>${article.title || '未命名文章'}</h2>
                     <p>${article.content || ''}</p>
@@ -77,6 +116,47 @@
             `).join('');
         }
 
+        async function initComposer() {
+            currentUser = await getCurrentUser();
+            if (!currentUser) {
+                composerHint.textContent = '你尚未登入，請先到帳號頁登入後再發布。';
+                publishBtn.disabled = true;
+                return;
+            }
+
+            composerHint.textContent = `目前登入：${currentUser.email}`;
+            publishBtn.disabled = false;
+        }
+
+        composerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (!currentUser) {
+                composerHint.textContent = '請先登入後再發布文章。';
+                return;
+            }
+
+            const title = document.getElementById('postTitle').value.trim();
+            const category = document.getElementById('postCategory').value.trim();
+            const imageUrl = document.getElementById('postImageUrl').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+
+            try {
+                publishBtn.disabled = true;
+                publishBtn.textContent = '發布中...';
+                await addArticle(title, content, category, imageUrl);
+                composerForm.reset();
+                composerHint.textContent = '文章已發布成功';
+                await loadPublicArticles();
+            } catch (error) {
+                composerHint.textContent = `發布失敗：${error.message}`;
+            } finally {
+                publishBtn.disabled = !currentUser;
+                publishBtn.textContent = '發布文章';
+            }
+        });
+
+        initComposer();
         loadPublicArticles();
     </script>
 </body>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>球員資料 - 庭寬的足球小窩</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">⚽</span>
+                <span class="logo-text">庭寬的足球小窩</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">首頁</a></li>
+                <li><a href="about.html">關於我</a></li>
+                <li><a href="blog.html">賽事資訊</a></li>
+                <li><a href="players.html" class="active">球員資料</a></li>
+                <li><a href="chat.html">聊天室</a></li>
+                <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="players-section">
+        <div class="container">
+            <h1>球員資料</h1>
+            <p class="subtitle">使用免費 TheSportsDB 來源，搜尋你想看的球員或隊伍。</p>
+
+            <form id="playerSearchForm" class="players-search">
+                <div class="form-group">
+                    <label for="playerKeyword">球員名稱</label>
+                    <input id="playerKeyword" type="text" placeholder="例如: Messi, Son" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="teamKeyword">隊伍名稱（可選）</label>
+                    <input id="teamKeyword" type="text" placeholder="例如: Arsenal" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="leagueFilter">聯賽篩選</label>
+                    <select id="leagueFilter">
+                        <option value="">全部</option>
+                        <option value="premier_league">英超</option>
+                        <option value="la_liga">西甲</option>
+                        <option value="serie_a">義甲</option>
+                        <option value="bundesliga">德甲</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nationalityFilter">國籍篩選（可選）</label>
+                    <input id="nationalityFilter" type="text" placeholder="例如: Argentina, Korea" maxlength="40">
+                </div>
+                <button id="playerSearchBtn" class="submit-btn" type="submit">搜尋球員</button>
+            </form>
+
+            <div id="playerStatus" class="chat-status">請輸入球員名稱或隊伍名稱後搜尋。</div>
+            <div id="playersGrid" class="players-grid"></div>
+            <div class="players-actions">
+                <button id="loadMoreBtn" class="submit-btn" type="button" style="display: none;">載入更多</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="playerModal" class="player-modal" aria-hidden="true">
+        <div class="player-modal-content">
+            <button id="closePlayerModal" class="player-modal-close" type="button">&times;</button>
+            <div id="playerModalBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 庭寬的足球小窩. 保留所有權利。</p>
+            <div class="social-links">
+                <a href="#">Discord</a>
+                <a href="#">X</a>
+                <a href="#">IG</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="api-config.js"></script>
+    <script src="api-utils.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const form = document.getElementById('playerSearchForm');
+        const playerKeywordInput = document.getElementById('playerKeyword');
+        const teamKeywordInput = document.getElementById('teamKeyword');
+        const statusEl = document.getElementById('playerStatus');
+        const gridEl = document.getElementById('playersGrid');
+        const searchBtn = document.getElementById('playerSearchBtn');
+        const leagueFilter = document.getElementById('leagueFilter');
+        const nationalityFilter = document.getElementById('nationalityFilter');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const playerModal = document.getElementById('playerModal');
+        const playerModalBody = document.getElementById('playerModalBody');
+        const closePlayerModal = document.getElementById('closePlayerModal');
+
+        let currentPage = 1;
+        const pageSize = 12;
+        let hasMore = false;
+        let currentPlayers = [];
+        let currentFilters = {
+            search: '',
+            team: '',
+            league: '',
+            nationality: ''
+        };
+
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderPlayers(players, append = false) {
+            if (!players.length && !append) {
+                gridEl.innerHTML = '<p class="empty-state">找不到符合條件的球員資料。</p>';
+                return;
+            }
+
+            const html = players.map(player => {
+                const avatar = player.cutout || player.thumb || player.render || '';
+                return `
+                    <article class="player-card" data-player-id="${escapeHtml(player.id || '')}">
+                        <div class="player-avatar-wrap">
+                            ${avatar ? `<img class="player-avatar" src="${avatar}" alt="${escapeHtml(player.name || '球員')}">` : '<div class="player-avatar placeholder">No Image</div>'}
+                        </div>
+                        <h2>${escapeHtml(player.name || '未知球員')}</h2>
+                        <p><strong>綽號：</strong>${escapeHtml(player.nickname || '未設定')}</p>
+                        <p><strong>隊伍：</strong>${escapeHtml(player.team || '未知')}</p>
+                        <p><strong>位置：</strong>${escapeHtml(player.position || '未知')}</p>
+                        <p><strong>國籍：</strong>${escapeHtml(player.nationality || '未知')}</p>
+                        <p><strong>背號：</strong>${escapeHtml(player.number || '未知')}</p>
+                        <p><strong>生日：</strong>${escapeHtml(player.birthDate || '未知')}</p>
+                        <button class="submit-btn player-detail-btn" type="button" data-player-id="${escapeHtml(player.id || '')}">查看詳細</button>
+                    </article>
+                `;
+            }).join('');
+
+            if (append) {
+                gridEl.insertAdjacentHTML('beforeend', html);
+            } else {
+                gridEl.innerHTML = html;
+            }
+
+            document.querySelectorAll('.player-detail-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const playerId = btn.dataset.playerId;
+                    const player = currentPlayers.find((item) => String(item.id) === String(playerId));
+                    if (player) {
+                        showPlayerModal(player);
+                    }
+                });
+            });
+        }
+
+        function showPlayerModal(player) {
+            const avatar = player.cutout || player.thumb || player.render || '';
+            const description = player.description || '目前沒有更多球員介紹資料。';
+            playerModalBody.innerHTML = `
+                <div class="player-modal-header">
+                    <div class="player-modal-avatar-wrap">
+                        ${avatar ? `<img class="player-modal-avatar" src="${avatar}" alt="${escapeHtml(player.name || '球員')}">` : '<div class="player-avatar placeholder">No Image</div>'}
+                    </div>
+                    <div>
+                        <h2>${escapeHtml(player.name || '未知球員')}</h2>
+                        <p><strong>隊伍：</strong>${escapeHtml(player.team || '未知')}</p>
+                        <p><strong>位置：</strong>${escapeHtml(player.position || '未知')}</p>
+                        <p><strong>國籍：</strong>${escapeHtml(player.nationality || '未知')}</p>
+                        <p><strong>背號：</strong>${escapeHtml(player.number || '未知')}</p>
+                        <p><strong>生日：</strong>${escapeHtml(player.birthDate || '未知')}</p>
+                        <p><strong>身高：</strong>${escapeHtml(player.height || '未知')}</p>
+                        <p><strong>體重：</strong>${escapeHtml(player.weight || '未知')}</p>
+                    </div>
+                </div>
+                <div class="player-modal-description">${escapeHtml(description).replace(/\n/g, '<br>')}</div>
+            `;
+
+            playerModal.classList.add('open');
+            playerModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function hidePlayerModal() {
+            playerModal.classList.remove('open');
+            playerModal.setAttribute('aria-hidden', 'true');
+        }
+
+        async function searchPlayers(append = false) {
+            const search = currentFilters.search;
+            const team = currentFilters.team;
+            const league = currentFilters.league;
+            const nationality = currentFilters.nationality;
+
+            if (!search && !team && !league) {
+                statusEl.textContent = '請至少輸入球員名稱或隊伍名稱';
+                statusEl.className = 'chat-status error';
+                return;
+            }
+
+            try {
+                searchBtn.disabled = true;
+                searchBtn.textContent = '搜尋中...';
+                loadMoreBtn.disabled = true;
+                statusEl.textContent = '正在取得球員資料...';
+                statusEl.className = 'chat-status';
+
+                const result = await getFootballPlayers({
+                    search,
+                    team,
+                    league,
+                    nationality,
+                    page: currentPage,
+                    pageSize
+                });
+
+                const players = result.players || [];
+                const settings = await getSettings();
+                const nicknameMap = settings?.playerNicknames || {};
+                players.forEach((player) => {
+                    const key = player.id || player.name;
+                    player.nickname = nicknameMap[key] || '';
+                });
+                hasMore = !!result.pagination?.hasMore;
+                currentPlayers = append ? currentPlayers.concat(players) : players;
+
+                renderPlayers(players, append);
+                const total = result.pagination?.total ?? currentPlayers.length;
+                statusEl.textContent = `搜尋完成，共 ${total} 筆結果`;
+                statusEl.className = 'chat-status connected';
+
+                loadMoreBtn.style.display = hasMore ? 'inline-block' : 'none';
+                loadMoreBtn.disabled = false;
+            } catch (error) {
+                statusEl.textContent = `搜尋失敗：${error.message}`;
+                statusEl.className = 'chat-status error';
+                if (!append) {
+                    gridEl.innerHTML = '';
+                }
+                loadMoreBtn.style.display = 'none';
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '搜尋球員';
+            }
+        }
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            currentPage = 1;
+            currentFilters = {
+                search: playerKeywordInput.value.trim(),
+                team: teamKeywordInput.value.trim(),
+                league: leagueFilter.value,
+                nationality: nationalityFilter.value.trim()
+            };
+            searchPlayers(false);
+        });
+
+        loadMoreBtn.addEventListener('click', () => {
+            if (!hasMore) return;
+            currentPage += 1;
+            searchPlayers(true);
+        });
+
+        closePlayerModal.addEventListener('click', hidePlayerModal);
+        playerModal.addEventListener('click', (event) => {
+            if (event.target === playerModal) {
+                hidePlayerModal();
+            }
+        });
+
+        playerKeywordInput.value = 'Messi';
+        currentFilters.search = 'Messi';
+        searchPlayers(false);
+    </script>
+</body>
+</html>

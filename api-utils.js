@@ -63,6 +63,16 @@ async function loginUser(email, password) {
     return data.user;
 }
 
+async function registerUser(name, email, password) {
+    const data = await apiRequest('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password })
+    });
+
+    setAuthToken(data.token);
+    return data.user;
+}
+
 async function logoutUser() {
     try {
         await apiRequest('/auth/logout', { method: 'POST' }, true);
@@ -141,13 +151,29 @@ async function updateSettings(data) {
     }, true);
 }
 
-async function getFootballPlayers() {
+async function getFootballPlayers(filters = {}) {
     try {
-        const data = await apiRequest('/players?season=2024', { method: 'GET' });
-        return data.response || [];
+        const search = filters.search ? `search=${encodeURIComponent(filters.search)}` : '';
+        const team = filters.team ? `team=${encodeURIComponent(filters.team)}` : '';
+        const league = filters.league ? `league=${encodeURIComponent(filters.league)}` : '';
+        const nationality = filters.nationality ? `nationality=${encodeURIComponent(filters.nationality)}` : '';
+        const page = Number.isInteger(filters.page) ? `page=${filters.page}` : '';
+        const pageSize = Number.isInteger(filters.pageSize) ? `pageSize=${filters.pageSize}` : '';
+        const query = [search, team, league, nationality, page, pageSize].filter(Boolean).join('&');
+        const path = query ? `/players?${query}` : '/players';
+        const data = await apiRequest(path, { method: 'GET' });
+        return {
+            players: data.players || data.response || [],
+            pagination: data.pagination || null,
+            source: data.source || ''
+        };
     } catch (error) {
         console.error('獲取足球選手失敗:', error);
-        return [];
+        return {
+            players: [],
+            pagination: null,
+            source: ''
+        };
     }
 }
 
@@ -189,6 +215,24 @@ async function sendChatMessage(message, nickname) {
     await apiRequest('/chat/messages', {
         method: 'POST',
         body: JSON.stringify({ message, nickname })
+    });
+}
+
+async function getCommunityPosts() {
+    return await apiRequest('/community/posts', { method: 'GET' });
+}
+
+async function addCommunityPost(title, content, nickname) {
+    return await apiRequest('/community/posts', {
+        method: 'POST',
+        body: JSON.stringify({ title, content, nickname })
+    });
+}
+
+async function addCommunityComment(postId, content, nickname) {
+    return await apiRequest(`/community/posts/${encodeURIComponent(postId)}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ content, nickname })
     });
 }
 

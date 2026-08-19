@@ -18,6 +18,7 @@
                 <li><a href="index.html">首頁</a></li>
                 <li><a href="about.html" class="active">關於我</a></li>
                 <li><a href="blog.html">賽事資訊</a></li>
+                <li><a href="players.html">球員資料</a></li>
                 <li><a href="chat.html">聊天室</a></li>
                 <li><a href="admin.html" style="color: var(--accent-color); font-weight: bold;">帳號</a></li>
             </ul>
@@ -32,10 +33,10 @@
             <div class="about-content">
                 <div class="about-text">
                     <h2>你好，我是庭寬</h2>
-                    <p>歡迎來到庭寬的足球小窩！這裡是我分享足球想法、喜愛球員和精彩比賽的地方。</p>
+                    <p id="aboutIntroText">歡迎來到庭寬的足球小窩！這裡是我分享足球想法、喜愛球員和精彩比賽的地方。</p>
 
                     <h2>我喜歡的球隊</h2>
-                    <p>Arsenal F.C.（兵工廠／阿森納）</p>
+                    <p id="favoriteTeamText">Arsenal F.C.（兵工廠／阿森納）</p>
 
                     <h2>這個小窩會分享什麼</h2>
                     <ul class="values-list">
@@ -46,7 +47,7 @@
                     </ul>
 
                     <h2>關於這個網站</h2>
-                    <p>庭寬的足球小窩是我的個人足球網站。希望你可以在這裡找到喜歡的內容，歡迎一起分享足球。</p>
+                    <p id="siteAboutText">庭寬的足球小窩是我的個人足球網站。希望你可以在這裡找到喜歡的內容，歡迎一起分享足球。</p>
                 </div>
             </div>
         </div>
@@ -64,6 +65,25 @@
         </div>
     </footer>
 
+    <script src="api-config.js"></script>
+    <script src="api-utils.js"></script>
     <script src="script.js"></script>
+    <script>
+        async function applyPageContent() {
+            const settings = await getSettings();
+            const pageContent = settings?.pageContent || {};
+            if (pageContent.aboutIntro) {
+                document.getElementById('aboutIntroText').textContent = pageContent.aboutIntro;
+            }
+            if (pageContent.favoriteTeam) {
+                document.getElementById('favoriteTeamText').textContent = pageContent.favoriteTeam;
+            }
+            if (pageContent.siteAbout) {
+                document.getElementById('siteAboutText').textContent = pageContent.siteAbout;
+            }
+        }
+
+        applyPageContent();
+    </script>
 </body>
 </html>

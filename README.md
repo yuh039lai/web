@@ -12,10 +12,13 @@
 ## 主要功能
 
 - 管理員登入（JWT）
+- 本地帳號註冊（可直接在 admin.html 建立）
+- 賽事資訊頁可直接發布文章（登入後）
 - 文章 CRUD（新增/編輯/刪除/查詢）
+- 球員資料頁（免費 TheSportsDB API）
 - 網站設定讀寫
-- 聊天室訊息（輪詢）
-- 足球選手資料代理（透過後端呼叫外部 API）
+- 社群牆貼文與留言（輪詢更新）
+- 足球選手資料代理（透過後端呼叫免費 TheSportsDB API）
 
 ## 本機啟動
 
@@ -47,7 +50,8 @@ npm start
 
 ### 選填
 
-- FOOTBALL_API_KEY：若要啟用球員資料查詢
+- THESPORTSDB_API_KEY：TheSportsDB API Key（預設使用免費 key `3`）
+- ALLOW_PUBLIC_SIGNUP：是否開放 admin.html 公開註冊（預設 true）
 
 ## 前端串接 Render API
 

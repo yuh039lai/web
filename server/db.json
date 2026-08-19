@@ -5,6 +5,12 @@
       "email": "admin@example.com",
       "passwordHash": "$2b$10$CmYcHreg.sf66qibX1MxvOzvphe47.EJHHgQmjNDduHZRYcbr/Uiq",
       "name": "Admin"
+    },
+    {
+      "id": "u3U1xNfaiuwDedv_UPkRO",
+      "name": "Friend",
+      "email": "friend_20260819134448@example.com",
+      "passwordHash": "$2b$10$OzmqqC3aVNSDApftGFG6Ke/2vwVyuah1l9ca4.YbI655Yh0seDqae"
     }
   ],
   "settings": {
@@ -12,8 +18,51 @@
     "siteDescription": "探索足球的歷史、技術與激情",
     "contactEmail": "info@footballworld.com",
     "contactPhone": "+886-2-XXXX-XXXX",
-    "contactAddress": "台灣，台北市"
+    "contactAddress": "台灣，台北市",
+    "pageContent": {
+      "aboutIntro": "????",
+      "discordId": "disc_test",
+      "favoriteTeam": "????",
+      "siteAbout": "??????",
+      "instagramId": "ig_test"
+    },
+    "playerNicknames": {
+      "34146370": "23",
+      "fb9b": "???"
+    },
+    "updatedAt": "2026-08-19T06:17:53.702Z"
   },
-  "articles": [],
-  "chatMessages": []
+  "articles": [
+    {
+      "id": "ZwT9J1W3-K8ttuqAhOOHk",
+      "title": "123",
+      "content": "456",
+      "category": "賽事分析",
+      "imageUrl": "",
+      "createdAt": "2026-08-19T05:52:35.137Z",
+      "updatedAt": "2026-08-19T05:52:35.138Z"
+    },
+    {
+      "id": "LyJDXPZD9CiGmoMYZUKpp",
+      "title": "123",
+      "content": "789",
+      "category": "456",
+      "imageUrl": "",
+      "authorName": "Admin",
+      "authorEmail": "admin@example.com",
+      "createdAt": "2026-08-19T05:58:50.343Z",
+      "updatedAt": "2026-08-19T05:58:50.343Z"
+    }
+  ],
+  "chatMessages": [],
+  "communityPosts": [
+    {
+      "id": "uUOUgYWZAsC9Jl2vXOf_P",
+      "nickname": "漢堡",
+      "title": "123",
+      "content": "456",
+      "createdAt": "2026-08-19T05:58:36.118Z",
+      "comments": []
+    }
+  ]
 }
